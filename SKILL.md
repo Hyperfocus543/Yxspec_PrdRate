@@ -37,7 +37,7 @@ triggers:
 ## 用法
 
 ```bash
-# 默认评分（读 SKILL.md 所在目录的 PRD，或指定文件）
+# 默认评分（自动探测 PRD 形态：锚点/章节/优先级/来源）
 python scripts/score_prd.py project/specs/prd/prd-aima_bcm-2026.md
 
 # 输出 JSON（供脚本/流水线消费）
@@ -45,7 +45,26 @@ python scripts/score_prd.py prd.md --json
 
 # 输出 Markdown 报告
 python scripts/score_prd.py prd.md --report report.md
+
+# 查看探测到的形态（不打分）
+python scripts/score_prd.py prd.md --show-profile
+
+# 结构特殊时用配置覆盖探测结果
+python scripts/score_prd.py prd.md --config prd-rate.config.json
 ```
+
+## 自适应（Adaptive）
+
+**零配置即可对不同模板的 PRD 打分**。脚本自动探测：
+- **锚点形态**：`<a id="REQ-...">` / `<a id="FR-...">` / 自定义 ID 正则
+- **优先级体系**：`must/should/could` 或 `P0/P1/P2` 或 `high/medium/low`
+- **章节体系**：按 PRD 实际的一级/二级标题判完整性（非硬套固定章节名）
+- **来源路径**：从现有链接推断来源目录特征
+- **表格列序**：从表头推断描述/优先级/验收/来源列位置
+
+结构特殊时可 `--config` 覆盖（JSON，字段见脚本头注释）：章节名、锚点正则、优先级词表、来源路径、列序、模糊词等。
+
+> **边界**：打分面向"表格化结构化 PRD"（含 `<a id>` 锚点 + 需求表格）。纯段落式 PRD（无锚点无表格）可判章节/占位符等维度，但需求条目数为 0（CON/TRC 无从判定），属设计边界。
 
 ## 输出
 
